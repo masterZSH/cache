@@ -7,7 +7,7 @@ import (
 
 type Cache struct {
 	l      sync.Mutex
-	cache  map[interface{}]*data
+	cache  map[any]*data
 	config *CacheConfig
 }
 
@@ -21,7 +21,7 @@ func DefaultConfig() *CacheConfig {
 
 type data struct {
 	d        time.Duration
-	item     interface{}
+	item     any
 	callback func()
 	timer    *time.Timer
 }
@@ -29,7 +29,7 @@ type data struct {
 func New(config *CacheConfig) *Cache {
 	return &Cache{
 		config: config,
-		cache:  make(map[interface{}]*data),
+		cache:  make(map[any]*data),
 	}
 }
 
@@ -37,7 +37,7 @@ func DefaultCache() *Cache {
 	return New(DefaultConfig())
 }
 
-func (c *Cache) Add(key, value interface{}, duration time.Duration, callback func()) (item interface{}, result bool) {
+func (c *Cache) Add(key, value any, duration time.Duration, callback func()) (item any, result bool) {
 	c.l.Lock()
 	defer c.l.Unlock()
 
@@ -62,7 +62,7 @@ func (c *Cache) Add(key, value interface{}, duration time.Duration, callback fun
 	return value, true
 }
 
-func (c *Cache) Get(key interface{}) (interface{}, bool) {
+func (c *Cache) Get(key any) (any, bool) {
 	v, ok := c.cache[key]
 	if !ok {
 		return nil, false
@@ -70,7 +70,7 @@ func (c *Cache) Get(key interface{}) (interface{}, bool) {
 	return v.item, true
 }
 
-func (c *Cache) Remove(key interface{}) (value *data, result bool) {
+func (c *Cache) Remove(key any) (value *data, result bool) {
 	c.l.Lock()
 	defer c.l.Unlock()
 	v, ok := c.cache[key]
